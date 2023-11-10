@@ -520,6 +520,16 @@
   resolved "https://registry.yarnpkg.com/@ungap/structured-clone/-/structured-clone-1.2.0.tgz#756641adb587851b5ccb3e095daf27ae581c8406"
   integrity sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==
 
+"@vercel/edge@^1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@vercel/edge/-/edge-1.1.1.tgz#9b2fc0081dfe95db8b4c3598275721b1ad85e43f"
+  integrity sha512-NtKiIbn9Cq6HWGy+qRudz28mz5nxfOJWls5Pnckjw1yCfSX8rhXdvY/il3Sy3Zd5n/sKCM2h7VSCCpJF/oaDrQ==
+
+abcjs@^6.2.2:
+  version "6.2.2"
+  resolved "https://registry.yarnpkg.com/abcjs/-/abcjs-6.2.2.tgz#e684a1276c77ec324ab7fcc3895b752954412459"
+  integrity sha512-M5pvTb+0yABqScZBEN/bZmrMgX+iTtgD8vxAVTaKNNVt+ivyCzx0SLNYlTXYErlXu7QvPIoIiSPRojne6M24PA==
+
 abort-controller@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/abort-controller/-/abort-controller-3.0.0.tgz#eaf54d53b62bae4138e809ca225c8439a6efb392"
@@ -544,7 +554,7 @@ agentkeepalive@^4.2.1:
   dependencies:
     humanize-ms "^1.2.1"
 
-ai@^2.2.22:
+ai@^2.2.12:
   version "2.2.22"
   resolved "https://registry.yarnpkg.com/ai/-/ai-2.2.22.tgz#c40842d9a421d0d6d8a30d91b4e47e330874ad88"
   integrity sha512-H1TXjX3uGYU4bb8/GUTaY7BJ6YiMJDpp8WpmqwdVLmAh0+HufB7r27vCX0R4XXzJhdRaYp0ex6s9QvqkfvVA2A==

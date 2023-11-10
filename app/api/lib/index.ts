@@ -2,7 +2,6 @@ import util from "node:util"
 import { OpenAI } from "openai"
 
 import { DEFAULT_MODEL } from "./constants"
-import { debug, debugStream } from "./debug"
 import {
   EvaluationFunction,
   GPTOptions,
@@ -14,8 +13,6 @@ import {
   TagValue,
 } from "./types"
 import { processArrayCallstack, processCallstack } from "./utils"
-
-const DEBUG = true
 
 const openaiAPI = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -96,19 +93,6 @@ const makeString = <Options extends GPTOptions>(
               ...args,
               stream: true,
             })
-            // debug stream tokens
-            if (metadata.debug || DEBUG) {
-              const [openAIStream, streamForDebug] = openAIChatStream.tee()
-              const readStream = streamForDebug.toReadableStream()
-              await debugStream({
-                stream: readStream,
-                strings: this.strings,
-                children: processedChildren,
-                metadata,
-              })
-              // @ts-ignore
-              return resolve(openAIStream)
-            }
             // @ts-ignore
             return resolve(openAIChatStream)
           }
@@ -118,14 +102,6 @@ const makeString = <Options extends GPTOptions>(
           ).choices
             .slice(0, metadata.n ?? 1)
             .map(({ message }) => message.content)
-          if (metadata.debug || DEBUG) {
-            await debug({
-              strings: this.strings,
-              children: processedChildren,
-              choices,
-              metadata,
-            })
-          }
           const { parse } = this
           if (n === undefined) {
             const parsedValue = parse ? await parse(choices[0]) : choices[0]

@@ -15,7 +15,9 @@
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.0.2",
-    "ai": "^2.2.22",
+    "@vercel/edge": "^1.1.1",
+    "abcjs": "^6.2.2",
+    "ai": "^2.2.12",
     "class-variance-authority": "^0.4.0",
     "cli-table3": "^0.6.3",
     "clsx": "^1.2.1",
