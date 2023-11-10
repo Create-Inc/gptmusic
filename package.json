@@ -15,16 +15,21 @@
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.0.2",
+    "ai": "^2.2.22",
     "class-variance-authority": "^0.4.0",
+    "cli-table3": "^0.6.3",
     "clsx": "^1.2.1",
+    "colors": "^1.4.0",
     "lucide-react": "0.105.0-alpha.4",
     "next": "14",
     "next-themes": "^0.2.1",
+    "openai": "^4.17.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "sharp": "^0.31.3",
     "tailwind-merge": "^1.13.2",
-    "tailwindcss-animate": "^1.0.6"
+    "tailwindcss-animate": "^1.0.6",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@ianvs/prettier-plugin-sort-imports": "^3.7.2",
