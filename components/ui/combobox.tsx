@@ -41,7 +41,7 @@ export function Combobox({
             : "Select option..."}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0">
+      <PopoverContent className="max-h-[200px] w-[200px] overflow-scroll p-0">
         <Command>
           <CommandInput placeholder="Search option..." className="h-9" />
           <CommandEmpty>No option found.</CommandEmpty>
