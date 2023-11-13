@@ -5,14 +5,6 @@ import abcjs, { AbcVisualParams, MidiBuffer } from "abcjs";
 import { useCompletion } from "ai/react";
 
 import { Button } from "@/components/ui/button";
-import { Combobox } from "@/components/ui/combobox";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 import "./music.css";
 import clsx from "clsx";
@@ -350,9 +342,6 @@ export default function IndexPage() {
     };
     const timeout = setTimeout(fn, duration * 1000);
     playingSynth.current = { buffer: synth, fn, timeout };
-    setTimeout(() => {
-      synth.stop();
-    }, duration * 1100);
     return synth;
   };
   const handlePause = () => {
