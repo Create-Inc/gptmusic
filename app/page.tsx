@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/select";
 
 import "./music.css";
+import clsx from "clsx";
 
 const useAnimationFrame = (callback: (deltaTime: number) => void): void => {
   const requestRef = useRef<number>();
@@ -284,9 +285,15 @@ export default function IndexPage() {
       .split("\n")
       .filter((line) => !!line.trim())
       .filter((line) => !/\w: /.test(line))
-      .map((line) => line.replace(/\|1/g, "|")) // Remove first ending marker
-      .map((line) => line.replace(/\|[2-9][^\|]*/g, "")) // Remove all other endings
-      .map((line) => line.replaceAll("|:", "|").replaceAll(":|", "|"))
+      .map(
+        (line) =>
+          line
+            .replaceAll(/\|1/g, "|") // Remove first ending marker
+            .replaceAll(/\|[2-9][^\|]*/g, "") // Remove all other endings
+            .replaceAll(/\|"[^"]"/g, "") // Remove measure chords
+            .replaceAll("|:", "|") // remove repeat starts
+            .replaceAll(":|", "|") // remove repeat ends
+      )
       .join(" ")}`;
     const rendered = abcjs.renderAbc(
       musicRef.current,
@@ -390,40 +397,7 @@ export default function IndexPage() {
     <div className="flex h-screen flex-col items-center justify-center">
       <section className="container mb-8 flex flex-col items-center justify-center gap-6">
         <h1 className="flex gap-2 text-3xl font-extrabold leading-tight tracking-tighter md:text-4xl">
-          GPT Plays
-          <Select
-            value={genre}
-            onValueChange={(value) => {
-              setGenre(value as (typeof genres)[number]);
-            }}
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {genres.map((genre) => (
-                <SelectItem key={genre} value={genre}>
-                  {genre[0].toUpperCase() + genre.slice(1)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          on
-          <Combobox
-            value={instruments[program]}
-            onChange={(value) => {
-              const index = instruments.indexOf(
-                value as (typeof instruments)[number]
-              );
-              setProgram(index > -1 ? index : 0);
-            }}
-            options={instruments.map((instrument) => ({
-              value: instrument,
-              label:
-                instrument[0].toUpperCase() +
-                instrument.slice(1).replace(/_/g, " "),
-            }))}
-          />
+          gpt plays piano forever
         </h1>
         <div className="flex gap-4">
           <Button
@@ -446,15 +420,14 @@ export default function IndexPage() {
         </div>
       </section>
       <section>
+        <div className="absolute left-0 z-10 flex h-[200px] w-full" />
         <div
-          className="absolute left-0 z-10 flex h-[200px] w-full"
-          style={{
-            background:
-              "linear-gradient(to right, black 0%, black 35%, transparent 50%, black 65%, black 100%)",
-          }}
-        />
-        <div
-          className="flex items-center gap-0 will-change-transform"
+          className={clsx(
+            "flex items-center gap-0 will-change-transform transition-opacity",
+            {
+              "opacity-10": !playing,
+            }
+          )}
           ref={viewPortRef}
         >
           <div className="!h-[200px]" ref={prevMusicRef} />
