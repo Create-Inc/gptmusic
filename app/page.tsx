@@ -1,11 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import abcjs, {
-  AbcVisualParams,
-  MidiBuffer,
-  SynthObjectController,
-} from "abcjs";
+import abcjs, { AbcVisualParams, MidiBuffer } from "abcjs";
 import { useCompletion } from "ai/react";
 
 import { Button } from "@/components/ui/button";
@@ -184,25 +180,35 @@ const instruments = [
   "applause",
   "gunshot",
 ] as const;
+const DEFAULT_RENDER_OPTIONS: AbcVisualParams = {
+  paddingtop: 0,
+  paddingbottom: 0,
+  paddingright: 0,
+  paddingleft: 0,
+  jazzchords: false,
+  initialClef: false,
+  dragging: false,
+  add_classes: true,
+  staffwidth: 2000,
+};
 
 export default function IndexPage() {
   const musicRef = useRef<HTMLDivElement>(null);
   const currentMusicRef = useRef<HTMLDivElement>(null);
-  const nextMusicRef = useRef<HTMLDivElement>(null);
   const prevMusicRef = useRef<HTMLDivElement>(null);
-  const cursorRef = useRef<HTMLDivElement>(null);
+  const viewPortRef = useRef<HTMLDivElement>(null);
   const context = useRef<AudioContext | null>(null);
   const [playing, setPlaying] = useState(false);
   const [playedAt, setPlayedAt] = useState<number | null>(null);
   const playingSynth = useRef<{
     buffer: MidiBuffer;
+    fn: () => void;
     timeout?: NodeJS.Timeout;
   } | null>(null);
   const [genre, setGenre] = useState<(typeof genres)[number]>(genres[0]);
   const [program, setProgram] = useState<number>(0);
   const [previousMusic, setPreviousMusic] = useState<string>("");
   const [currentMusic, setCurrentMusic] = useState<string>("");
-  const [nextMusic, setNextMusic] = useState<string>("");
   const [totalDurationMs, setTotalDurationMs] = useState(0);
   const [time, setTime] = useState(0);
   const updateTime = useCallback(
@@ -215,6 +221,26 @@ export default function IndexPage() {
     [playedAt]
   );
   useAnimationFrame(updateTime);
+  const updateTranslate = useCallback(() => {
+    const currentWidth = currentMusicRef.current?.clientWidth ?? 0;
+    const previousWidth = prevMusicRef.current?.clientWidth ?? 0;
+    const nextWidth = musicRef.current?.clientWidth ?? 0;
+    const currentWidthPct =
+      currentWidth / (currentWidth + nextWidth + previousWidth);
+    const previousWidthPct =
+      previousWidth / (currentWidth + nextWidth + previousWidth);
+    const pctOfCurrentDone = time / totalDurationMs;
+    const pct =
+      50 +
+      1 * previousWidthPct * -100 +
+      pctOfCurrentDone * currentWidthPct * -100;
+    viewPortRef.current?.style.setProperty(
+      "transform",
+      isNaN(pct) ? "translateX(50%)" : `translateX(${pct}%)`
+    );
+  }, [time, totalDurationMs]);
+  useAnimationFrame(updateTranslate);
+
   useEffect(() => {
     context.current = new AudioContext();
   }, []);
@@ -232,53 +258,41 @@ export default function IndexPage() {
     if (
       !currentMusicRef.current ||
       currentMusic.length === 0 ||
-      !nextMusicRef.current ||
       !prevMusicRef.current
     ) {
       return;
     }
-    const options: AbcVisualParams = {
-      paddingtop: 0,
-      paddingbottom: 0,
-      paddingright: 0,
-      paddingleft: 0,
-      scrollHorizontal: true,
-      oneSvgPerLine: true,
-      jazzchords: false,
-      initialClef: false,
-      dragging: false,
-      add_classes: true,
-      staffwidth: 1000,
-    };
-    abcjs.renderAbc(prevMusicRef.current, previousMusic, options);
-    abcjs.renderAbc(currentMusicRef.current, currentMusic, options);
-    abcjs.renderAbc(nextMusicRef.current, nextMusic, options);
-  }, [currentMusic, nextMusic, previousMusic]);
+
+    abcjs.renderAbc(
+      prevMusicRef.current,
+      previousMusic,
+      DEFAULT_RENDER_OPTIONS
+    );
+    abcjs.renderAbc(
+      currentMusicRef.current,
+      currentMusic,
+      DEFAULT_RENDER_OPTIONS
+    );
+  }, [currentMusic, previousMusic]);
   const getSynth = async (music: string) => {
     if (!musicRef.current || !context.current) {
       throw new Error("no music ref");
     }
     const synth = new abcjs.synth.CreateSynth();
-    const controller = new abcjs.synth.SynthController();
 
-    const musicLines = music
+    const musicLines = `K:C clef=none\n${music
       .split("\n")
       .filter((line) => !!line.trim())
-      .filter((line) => !/\w:/.test(line))
+      .filter((line) => !/\w: /.test(line))
+      .map((line) => line.replace(/\|1/g, "|")) // Remove first ending marker
+      .map((line) => line.replace(/\|[2-9][^\|]*/g, "")) // Remove all other endings
       .map((line) => line.replaceAll("|:", "|").replaceAll(":|", "|"))
-      .join(" ");
-    setNextMusic(musicLines);
-    const rendered = abcjs.renderAbc(musicRef.current, musicLines, {
-      paddingtop: 0,
-      paddingbottom: 0,
-      paddingright: 0,
-      paddingleft: 0,
-      scrollHorizontal: true,
-      oneSvgPerLine: true,
-      jazzchords: false,
-      initialClef: false,
-      add_classes: true,
-    });
+      .join(" ")}`;
+    const rendered = abcjs.renderAbc(
+      musicRef.current,
+      musicLines,
+      DEFAULT_RENDER_OPTIONS
+    );
 
     await synth.init({
       options: {
@@ -288,67 +302,90 @@ export default function IndexPage() {
       visualObj: rendered[0],
     });
     const { duration } = await synth.prime();
-    return { synth, duration, controller, music: musicLines };
+    return { synth, duration, music: musicLines };
   };
   const playMusic = async ({
     synth,
     music,
     duration,
-    controller,
   }: {
     music: string;
     synth: MidiBuffer;
     duration: number;
-    controller: SynthObjectController;
   }) => {
+    synth.start();
     setPlayedAt(time);
     setTime(0);
     setTotalDurationMs(duration * 1000);
     setCurrentMusic(music);
-    synth.start();
-    controller.play();
     let next: Awaited<ReturnType<typeof getSynth>> | undefined;
-    let nextMusic: string | undefined | null;
-    setTimeout(async () => {
-      nextMusic = await completeContinuation(genre, {
+    setTimeout(() => {
+      completeContinuation(genre, {
         body: {
           style: genre,
           previousMusic: music,
         },
+      }).then((nextMusic) => {
+        if (nextMusic) {
+          getSynth(nextMusic).then((nextData) => {
+            next = nextData;
+          });
+        }
       });
-      if (nextMusic) {
-        next = await getSynth(nextMusic);
-      }
     }, 0);
-    const timeout = setTimeout(() => {
-      if (next && nextMusic) {
+    const fn = () => {
+      if (next) {
         setPreviousMusic(music);
         playMusic({
           ...next,
         });
       }
-    }, duration * 1000);
-    playingSynth.current = { buffer: synth, timeout };
+    };
+    const timeout = setTimeout(fn, duration * 1000);
+    playingSynth.current = { buffer: synth, fn, timeout };
     setTimeout(() => {
       synth.stop();
     }, duration * 1100);
     return synth;
   };
-  const pauseMusic = () => {
-    playingSynth.current?.buffer.stop();
+  const handlePause = () => {
+    playingSynth.current?.buffer.pause();
     if (playingSynth.current?.timeout) {
       clearTimeout(playingSynth.current.timeout);
     }
     setPlayedAt(null);
     setPlaying(false);
-    stopContinuation();
-    stop();
   };
-  const currentWidth = currentMusicRef.current?.clientWidth ?? 0;
-  const previousWidth = prevMusicRef.current?.clientWidth ?? 0;
-  const nextWidth = nextMusicRef.current?.clientWidth ?? 0;
-  const widthPct = currentWidth / (currentWidth + nextWidth + previousWidth);
-  const pct = 50 + (time * widthPct * -100) / totalDurationMs;
+  const handlePlay = () => {
+    setPlaying(true);
+    if (playingSynth.current) {
+      playingSynth.current.buffer.resume();
+      const timeout = setTimeout(
+        playingSynth.current.fn,
+        totalDurationMs - time
+      );
+      playingSynth.current.timeout = timeout;
+      setPlayedAt(time);
+    } else {
+      complete(genre, {
+        body: {
+          style: genre,
+        },
+      }).then((music) => {
+        if (music) {
+          getSynth(music).then(({ synth, duration, music }) => {
+            if (synth) {
+              playMusic({
+                synth,
+                duration,
+                music,
+              });
+            }
+          });
+        }
+      });
+    }
+  };
   return (
     <div className="flex h-screen flex-col items-center justify-center">
       <section className="container mb-8 flex flex-col items-center justify-center gap-6">
@@ -391,7 +428,7 @@ export default function IndexPage() {
         <div className="flex gap-4">
           <Button
             onClick={() => {
-              pauseMusic();
+              handlePause();
             }}
             disabled={!playing}
           >
@@ -400,27 +437,7 @@ export default function IndexPage() {
 
           <Button
             onClick={() => {
-              setPlaying(true);
-              complete(genre, {
-                body: {
-                  style: genre,
-                },
-              }).then((music) => {
-                if (music) {
-                  getSynth(music).then(
-                    ({ synth, duration, controller, music }) => {
-                      if (synth) {
-                        playMusic({
-                          synth,
-                          duration,
-                          music,
-                          controller,
-                        });
-                      }
-                    }
-                  );
-                }
-              });
+              handlePlay();
             }}
             disabled={playing}
           >
@@ -429,24 +446,20 @@ export default function IndexPage() {
         </div>
       </section>
       <section>
-        <div ref={cursorRef}></div>
-        <div className="!hidden" ref={musicRef}></div>
         <div
-          className="absolute left-0 z-10 flex h-[100px] w-full"
+          className="absolute left-0 z-10 flex h-[200px] w-full"
           style={{
             background:
               "linear-gradient(to right, black 0%, black 35%, transparent 50%, black 65%, black 100%)",
           }}
         />
         <div
-          className="flex items-center gap-0"
-          style={{
-            transform: `translateX(calc(-${previousWidth}px + ${pct}%))`,
-          }}
+          className="flex items-center gap-0 will-change-transform"
+          ref={viewPortRef}
         >
-          <div className="!h-[100px]" ref={prevMusicRef} />
-          <div className="!h-[100px]" ref={currentMusicRef} />
-          <div className="!h-[100px]" ref={nextMusicRef} />
+          <div className="!h-[200px]" ref={prevMusicRef} />
+          <div className="!h-[200px]" ref={currentMusicRef} />
+          <div className="!h-[200px]" ref={musicRef}></div>
         </div>
       </section>
     </div>
