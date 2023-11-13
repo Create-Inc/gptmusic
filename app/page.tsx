@@ -8,9 +8,6 @@ import "./music.css";
 import clsx from "clsx";
 import unmuteAudio from "unmute-ios-audio";
 
-// Call once, as early as possible in the page lifecycle
-unmuteAudio();
-
 const useAnimationFrame = (callback: (deltaTime: number) => void): void => {
   const requestRef = useRef<number>();
   const previousTimeRef = useRef<number>();
@@ -215,6 +212,10 @@ export default function IndexPage() {
     },
     [playedAt]
   );
+  useEffect(() => {
+    // Call once, as early as possible in the page lifecycle
+    unmuteAudio();
+  }, []);
   useAnimationFrame(updateTime);
   const updateTranslate = useCallback(() => {
     const currentWidth = currentMusicRef.current?.clientWidth ?? 0;
