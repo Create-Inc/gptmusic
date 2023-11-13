@@ -389,7 +389,8 @@ export default function IndexPage() {
           MusicGPT
         </h1>
         <h2 className="mb-6 text-lg tracking-tighter">
-          unique piano music that <strong>never ends</strong>
+          piano music that <strong>never ends</strong> and{" "}
+          <strong>never repeats</strong>
         </h2>
         <div className="flex gap-4">
           {isLoading ? (

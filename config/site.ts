@@ -2,5 +2,5 @@ export type SiteConfig = typeof siteConfig;
 
 export const siteConfig = {
   name: "MusicGPT",
-  description: "unique piano music that never ends",
+  description: "piano music that never ends and never repeats",
 };
