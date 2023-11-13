@@ -7,6 +7,8 @@ import { useCompletion } from "ai/react";
 import "./music.css";
 import clsx from "clsx";
 
+import { Seo } from "./seo";
+
 const useAnimationFrame = (callback: (deltaTime: number) => void): void => {
   const requestRef = useRef<number>();
   const previousTimeRef = useRef<number>();
@@ -384,6 +386,7 @@ export default function IndexPage() {
   };
   return (
     <div className="flex h-screen w-screen flex-col items-center justify-center overflow-x-hidden">
+      <Seo />
       <section className="container mb-8 flex flex-col items-center justify-center">
         <h1 className="flex text-3xl font-extrabold leading-tight tracking-tighter md:text-4xl">
           MusicGPT
