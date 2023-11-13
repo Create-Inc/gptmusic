@@ -384,10 +384,13 @@ export default function IndexPage() {
   };
   return (
     <div className="flex h-screen w-screen flex-col items-center justify-center overflow-x-hidden">
-      <section className="container mb-8 flex flex-col items-center justify-center gap-6">
-        <h1 className="flex gap-2 text-3xl font-extrabold leading-tight tracking-tighter md:text-4xl">
-          gpt plays piano forever
+      <section className="container mb-8 flex flex-col items-center justify-center">
+        <h1 className="flex text-3xl font-extrabold leading-tight tracking-tighter md:text-4xl">
+          MusicGPT
         </h1>
+        <h2 className="mb-6 text-lg tracking-tighter">
+          a piano song that never ends
+        </h2>
         <div className="flex gap-4">
           <Button
             onClick={() => {
