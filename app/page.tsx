@@ -421,13 +421,13 @@ export default function IndexPage() {
               >
                 <path
                   d="M14.332 21V1"
-                  stroke="white"
+                  stroke="currentColor"
                   stroke-linecap="round"
                   stroke-linejoin="round"
                 />
                 <path
                   d="M1 21V1"
-                  stroke="white"
+                  stroke="currentColor"
                   stroke-linecap="round"
                   stroke-linejoin="round"
                 />
@@ -451,15 +451,15 @@ export default function IndexPage() {
       </section>
       <section>
         <div className="absolute left-0 z-10 flex h-[200px] w-full">
-          <div className="grow-0 bg-background md:grow lg:grow-[2]"></div>
-          <div className="grow-[2] bg-viewport dark:bg-viewport-dark"></div>
-          <div className="grow-0 bg-background md:grow lg:grow-[2]"></div>
+          <div className="grow-[1] bg-background md:grow-[4] lg:grow-[8]"></div>
+          <div className="grow-[8] bg-viewport dark:bg-viewport-dark"></div>
+          <div className="grow-[1] bg-background md:grow-[4] lg:grow-[8]"></div>
         </div>
         <div
           className={clsx(
             "flex items-center gap-0 will-change-transform transition-opacity overflow-clip",
             {
-              "opacity-10": !playing,
+              "opacity-20": !playing,
             }
           )}
           ref={viewPortRef}
