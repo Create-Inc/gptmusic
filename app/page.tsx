@@ -234,9 +234,6 @@ export default function IndexPage() {
   }, [time, totalDurationMs]);
   useAnimationFrame(updateTranslate);
 
-  useEffect(() => {
-    context.current = new AudioContext();
-  }, []);
   const { complete, isLoading, stop } = useCompletion({
     ...COMMON_STATIC_CONFIG,
   });
@@ -353,6 +350,7 @@ export default function IndexPage() {
     setPlaying(false);
   };
   const handlePlay = () => {
+    context.current = context.current ?? new AudioContext();
     setPlaying(true);
     if (playingSynth.current) {
       playingSynth.current.buffer.resume();
