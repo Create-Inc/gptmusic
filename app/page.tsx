@@ -298,7 +298,9 @@ export default function IndexPage() {
     const { duration } = await synth.prime();
     return { synth, duration, music: musicLines };
   };
-  const isIphone = /(iPhone|iPad)/g.test(navigator.userAgent);
+  const isIphone =
+    typeof navigator !== "undefined" &&
+    /(iPhone | iPad)/g.test(navigator.userAgent);
 
   const playMusic = async ({
     synth,
