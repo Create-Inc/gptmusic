@@ -56,6 +56,12 @@ module.exports = {
       fontFamily: {
         sans: ["var(--font-sans)", ...fontFamily.sans],
       },
+      backgroundImage: {
+        viewport:
+          "linear-gradient(to right, hsl(0 0% 100%) 0%, transparent 50%, hsl(0 0% 100%) 100%)",
+        "viewport-dark":
+          "linear-gradient(to right, hsl(224 71% 4%) 0%, transparent 50%, hsl(224 71% 4%) 100%)",
+      },
       keyframes: {
         "accordion-down": {
           from: { height: 0 },

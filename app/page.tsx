@@ -394,7 +394,7 @@ export default function IndexPage() {
     }
   };
   return (
-    <div className="flex h-screen flex-col items-center justify-center">
+    <div className="flex h-screen w-screen flex-col items-center justify-center overflow-x-hidden">
       <section className="container mb-8 flex flex-col items-center justify-center gap-6">
         <h1 className="flex gap-2 text-3xl font-extrabold leading-tight tracking-tighter md:text-4xl">
           gpt plays piano forever
@@ -420,10 +420,14 @@ export default function IndexPage() {
         </div>
       </section>
       <section>
-        <div className="absolute left-0 z-10 flex h-[200px] w-full" />
+        <div className="absolute left-0 z-10 flex h-[200px] w-full">
+          <div className="grow-0 bg-background md:grow lg:grow-[2]"></div>
+          <div className="grow-[2] bg-viewport dark:bg-viewport-dark"></div>
+          <div className="grow-0 bg-background md:grow lg:grow-[2]"></div>
+        </div>
         <div
           className={clsx(
-            "flex items-center gap-0 will-change-transform transition-opacity",
+            "flex items-center gap-0 will-change-transform transition-opacity overflow-clip",
             {
               "opacity-10": !playing,
             }
