@@ -4,10 +4,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import abcjs, { AbcVisualParams, MidiBuffer } from "abcjs";
 import { useCompletion } from "ai/react";
 
-import { Button } from "@/components/ui/button";
-
 import "./music.css";
 import clsx from "clsx";
+import unmuteAudio from "unmute-ios-audio";
+
+// Call once, as early as possible in the page lifecycle
+unmuteAudio();
 
 const useAnimationFrame = (callback: (deltaTime: number) => void): void => {
   const requestRef = useRef<number>();
