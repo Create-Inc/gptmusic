@@ -3,11 +3,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import abcjs, { AbcVisualParams, MidiBuffer } from "abcjs";
 import { useCompletion } from "ai/react";
-import { Howl, Howler } from "howler";
 
 import "./music.css";
 import clsx from "clsx";
-import unmuteAudio from "unmute-ios-audio";
 
 const useAnimationFrame = (callback: (deltaTime: number) => void): void => {
   const requestRef = useRef<number>();
@@ -213,14 +211,6 @@ export default function IndexPage() {
     },
     [playedAt]
   );
-  useEffect(() => {
-    const sound = new Howl({
-      src: "data:audio/wav;base64,UklGRjIAAABXQVZFZm10IBIAAAABAAEAQB8AAEAfAAABAAgAAABmYWN0BAAAAAAAAABkYXRhAAAAAA==",
-    });
-    sound.play();
-    // Call once, as early as possible in the page lifecycle
-    unmuteAudio();
-  }, []);
   useAnimationFrame(updateTime);
   const updateTranslate = useCallback(() => {
     const currentWidth = currentMusicRef.current?.clientWidth ?? 0;
@@ -298,6 +288,7 @@ export default function IndexPage() {
       DEFAULT_RENDER_OPTIONS
     );
 
+    console.log(`context.current:`, context.current);
     await synth.init({
       options: {
         program,
@@ -308,6 +299,8 @@ export default function IndexPage() {
     const { duration } = await synth.prime();
     return { synth, duration, music: musicLines };
   };
+  const isIphone = /(iPhone|iPad)/.test(navigator.userAgent);
+
   const playMusic = async ({
     synth,
     music,
@@ -399,21 +392,24 @@ export default function IndexPage() {
         </h2>
         <div className="flex gap-4">
           {isLoading ? (
-            <svg
-              height="20"
-              width="20"
-              xmlns="http://www.w3.org/2000/svg"
-              className="animate-spin"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <path
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              />
-            </svg>
+            <div className="p-4">
+              <svg
+                height="20"
+                width="20"
+                xmlns="http://www.w3.org/2000/svg"
+                className="animate-spin"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                />
+              </svg>
+            </div>
           ) : playing ? (
             <button
+              className="p-4"
               onClick={() => {
                 handlePause();
               }}
@@ -428,19 +424,20 @@ export default function IndexPage() {
                 <path
                   d="M14.332 21V1"
                   stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 />
                 <path
                   d="M1 21V1"
                   stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 />
               </svg>
             </button>
           ) : (
             <button
+              className="p-4"
               onClick={() => {
                 handlePlay();
               }}
@@ -474,6 +471,18 @@ export default function IndexPage() {
           <div className="!h-[200px]" ref={currentMusicRef} />
           <div className="!h-[200px]" ref={musicRef}></div>
         </div>
+      </section>
+      <section>
+        <h2 className="mb-6 flex h-[40px] flex-col items-center justify-center text-sm tracking-tighter text-muted-foreground">
+          {typeof playedAt === "number" && isIphone ? (
+            <>
+              <p>can{"'"}t hear anything?</p>
+              <p>you may have to disable silent mode</p>
+            </>
+          ) : (
+            <></>
+          )}
+        </h2>
       </section>
       <section className="absolute bottom-10 flex gap-5">
         <a
