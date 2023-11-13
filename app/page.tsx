@@ -288,7 +288,6 @@ export default function IndexPage() {
       DEFAULT_RENDER_OPTIONS
     );
 
-    console.log(`context.current:`, context.current);
     await synth.init({
       options: {
         program,
@@ -299,7 +298,7 @@ export default function IndexPage() {
     const { duration } = await synth.prime();
     return { synth, duration, music: musicLines };
   };
-  const isIphone = /(iPhone|iPad)/.test(navigator.userAgent);
+  const isIphone = /(iPhone|iPad)/g.test(navigator.userAgent);
 
   const playMusic = async ({
     synth,
