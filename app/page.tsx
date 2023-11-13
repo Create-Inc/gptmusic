@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import abcjs, { AbcVisualParams, MidiBuffer } from "abcjs";
 import { useCompletion } from "ai/react";
+import { Howl, Howler } from "howler";
 
 import "./music.css";
 import clsx from "clsx";
@@ -213,6 +214,10 @@ export default function IndexPage() {
     [playedAt]
   );
   useEffect(() => {
+    const sound = new Howl({
+      src: "data:audio/wav;base64,UklGRjIAAABXQVZFZm10IBIAAAABAAEAQB8AAEAfAAABAAgAAABmYWN0BAAAAAAAAABkYXRhAAAAAA==",
+    });
+    sound.play();
     // Call once, as early as possible in the page lifecycle
     unmuteAudio();
   }, []);
