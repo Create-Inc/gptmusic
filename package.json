@@ -33,7 +33,7 @@
     "openai": "^4.17.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "sharp": "^0.31.3",
+    "sharp": "^0.32.6",
     "tailwind-merge": "^1.13.2",
     "tailwindcss-animate": "^1.0.6",
     "unmute-ios-audio": "^3.3.0",
