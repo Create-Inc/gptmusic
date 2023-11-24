@@ -42,6 +42,12 @@ const COMMON_STATIC_CONFIG: Partial<AICompletionConfig> = {
   },
 };
 
+const start = `
+X: 1
+M: 2/4
+L: 1/8
+K: C
+| "C"Ge dc | G3 G/-G/ | Ge dc | "F"A4 | "Dm"Af ed | "G7"B3 g | ag fd | "C"e4 | "C"Ge dc | G3 G/-G/ | Ge dc | "F"A3 A | "Dm"Af ed | "C"gg gg | "G7"ag fd | "C"c2 z2 | "C"ee e2 | ee e2 | eg c>d | "C7"e4 | "F"ff f>f | "C"fe ee/e/ | "D7"ed de | "G7"d2 g2 | "C"ee e2 | ee e2 | eg c>d | "C7"e4 | "F"ff f>f | "C"fe ee/e/ | "G7"gg fd | "C"c4 |`;
 const genres = ["traditional irish"] as const;
 const instruments = [
   "acoustic_grand_piano",
@@ -198,8 +204,7 @@ export default function IndexPage() {
     fn: () => void;
     timeout?: NodeJS.Timeout;
   } | null>(null);
-  const [genre, setGenre] = useState<(typeof genres)[number]>(genres[0]);
-  const [program, setProgram] = useState<number>(0);
+  const [program] = useState<number>(0);
   const [previousMusic, setPreviousMusic] = useState<string>("");
   const [currentMusic, setCurrentMusic] = useState<string>("");
   const [totalDurationMs, setTotalDurationMs] = useState(0);
@@ -234,14 +239,7 @@ export default function IndexPage() {
   }, [time, totalDurationMs]);
   useAnimationFrame(updateTranslate);
 
-  const { complete, isLoading, stop } = useCompletion({
-    ...COMMON_STATIC_CONFIG,
-  });
-  const {
-    complete: completeContinuation,
-    isLoading: isLoadingContinuation,
-    stop: stopContinuation,
-  } = useCompletion({
+  const { complete: completeContinuation } = useCompletion({
     ...COMMON_STATIC_CONFIG,
   });
   useEffect(() => {
@@ -269,26 +267,28 @@ export default function IndexPage() {
       throw new Error("no music ref");
     }
     const synth = new abcjs.synth.CreateSynth();
+    console.log("synth:", synth);
 
-    const musicLines = `K:C clef=none\n${music
+    const musicLines = `K:C clef=none\nQ: 1/4=140\n${music
       .split("\n")
       .filter((line) => !!line.trim())
-      .filter((line) => !/\w: /.test(line))
+      .filter((line) => !/\w:/.test(line))
       .map(
         (line) =>
           line
             .replaceAll(/\|1/g, "|") // Remove first ending marker
             .replaceAll(/\|[2-9][^\|]*/g, "") // Remove all other endings
-            .replaceAll(/\|"[^"]"/g, "") // Remove measure chords
             .replaceAll("|:", "|") // remove repeat starts
             .replaceAll(":|", "|") // remove repeat ends
       )
       .join(" ")}`;
+    console.log("musicLines:", musicLines);
     const rendered = abcjs.renderAbc(
       musicRef.current,
       musicLines,
       DEFAULT_RENDER_OPTIONS
     );
+    console.log("rendered:", rendered);
 
     await synth.init({
       options: {
@@ -298,6 +298,7 @@ export default function IndexPage() {
       visualObj: rendered[0],
     });
     const { duration } = await synth.prime();
+    console.log("duration:", duration);
     return { synth, duration, music: musicLines };
   };
   const isIphone =
@@ -319,16 +320,24 @@ export default function IndexPage() {
     setTotalDurationMs(duration * 1000);
     setCurrentMusic(music);
     let next: Awaited<ReturnType<typeof getSynth>> | undefined;
+    let p: Promise<
+      | {
+          music: string;
+          synth: MidiBuffer;
+          duration: number;
+        }
+      | undefined
+    >;
     setTimeout(() => {
-      completeContinuation(genre, {
+      p = completeContinuation("Christmas music", {
         body: {
-          style: genre,
-          previousMusic: music,
+          previous: start,
         },
       }).then((nextMusic) => {
         if (nextMusic) {
-          getSynth(nextMusic).then((nextData) => {
+          return getSynth(nextMusic).then((nextData) => {
             next = nextData;
+            return next;
           });
         }
       });
@@ -338,6 +347,15 @@ export default function IndexPage() {
         setPreviousMusic(music);
         playMusic({
           ...next,
+        });
+      } else {
+        p.then((nextData) => {
+          if (nextData) {
+            setPreviousMusic(music);
+            playMusic({
+              ...nextData,
+            });
+          }
         });
       }
     };
@@ -365,25 +383,18 @@ export default function IndexPage() {
       playingSynth.current.timeout = timeout;
       setPlayedAt(time);
     } else {
-      complete(genre, {
-        body: {
-          style: genre,
-        },
-      }).then((music) => {
-        if (music) {
-          getSynth(music).then(({ synth, duration, music }) => {
-            if (synth) {
-              playMusic({
-                synth,
-                duration,
-                music,
-              });
-            }
+      getSynth(start).then(({ synth, duration, music }) => {
+        if (synth) {
+          playMusic({
+            synth,
+            duration,
+            music,
           });
         }
       });
     }
   };
+  const isLoading = false;
   return (
     <div className="flex h-screen w-screen flex-col items-center justify-center overflow-x-hidden">
       <Seo />
@@ -392,8 +403,7 @@ export default function IndexPage() {
           MusicGPT
         </h1>
         <h2 className="tablet:text-left mb-6 text-center text-lg tracking-tighter text-accent">
-          piano music that <strong>never ends</strong> <br />
-          and <strong>never repeats</strong>
+          currently playing variations on jingle bells
         </h2>
         <div className="flex gap-4">
           {isLoading ? (
