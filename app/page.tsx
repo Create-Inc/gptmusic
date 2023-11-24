@@ -403,7 +403,7 @@ export default function IndexPage() {
           MusicGPT
         </h1>
         <h2 className="tablet:text-left mb-6 text-center text-lg tracking-tighter text-accent">
-          currently playing variations on jingle bells
+          infinite variations on jingle bells
         </h2>
         <div className="flex gap-4">
           {isLoading ? (
