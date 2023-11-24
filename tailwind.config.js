@@ -58,9 +58,9 @@ module.exports = {
       },
       backgroundImage: {
         viewport:
-          "linear-gradient(to right, hsl(0 0% 100%) 0%, transparent 50%, hsl(0 0% 100%) 100%)",
+          "linear-gradient(to right, hsl(48 100% 98%) 0%, transparent 50%, hsl(48 100% 98%) 100%)",
         "viewport-dark":
-          "linear-gradient(to right, hsl(224 71% 4%) 0%, transparent 50%, hsl(224 71% 4%) 100%)",
+          "linear-gradient(to right, hsl(182 84% 7%) 0%, transparent 50%, hsl(182 84% 7%) 100%)",
       },
       keyframes: {
         "accordion-down": {

@@ -391,9 +391,9 @@ export default function IndexPage() {
         <h1 className="flex text-3xl font-extrabold leading-tight tracking-tighter md:text-4xl">
           MusicGPT
         </h1>
-        <h2 className="mb-6 text-lg tracking-tighter">
-          piano music that <strong>never ends</strong> and{" "}
-          <strong>never repeats</strong>
+        <h2 className="tablet:text-left mb-6 text-center text-lg tracking-tighter text-accent">
+          piano music that <strong>never ends</strong> <br />
+          and <strong>never repeats</strong>
         </h2>
         <div className="flex gap-4">
           {isLoading ? (
@@ -414,7 +414,7 @@ export default function IndexPage() {
             </div>
           ) : playing ? (
             <button
-              className="p-4"
+              className="p-4 hover:text-[hsl(357,81%,53%)]"
               onClick={() => {
                 handlePause();
               }}
@@ -442,16 +442,19 @@ export default function IndexPage() {
             </button>
           ) : (
             <button
-              className="p-4"
+              className="p-4 hover:text-[hsl(349,67%,48%)] dark:hover:text-[hsl(357,81%,53%)]"
               onClick={() => {
                 handlePlay();
               }}
             >
-              <svg width="20" height="20" viewBox={`0 0 20 20`}>
-                <path
-                  fill="currentColor"
-                  d="M5.135 2.621a.25.25 0 0 0-.385.21v14.337a.25.25 0 0 0 .385.21l11.15-7.168a.25.25 0 0 0 0-.42L5.136 2.62zm-1.885.21c0-1.384 1.532-2.22 2.696-1.471l11.151 7.168a1.75 1.75 0 0 1 0 2.944L5.947 18.64c-1.165.75-2.697-.087-2.697-1.472V2.832z"
-                />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                version="1.1"
+                viewBox={`0 0 20 20`}
+              >
+                <polygon points="0,0 20,10 0,20" fill="currentColor" />
               </svg>
             </button>
           )}
@@ -489,7 +492,7 @@ export default function IndexPage() {
           )}
         </h2>
       </section>
-      <section className="absolute bottom-10 flex gap-5">
+      <section className="absolute bottom-10 flex gap-5 text-[hsl(34,88%,63%)] dark:text-[hsl(357,31%,53%)]">
         <a
           href="https://twitter.com/failingbuild"
           target="_blank"
